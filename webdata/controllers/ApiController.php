@@ -18,7 +18,7 @@ class ApiController extends Pix_Controller
         curl_close($curl);
         fflush($download_fp);
 
-        $unzip_script = 'unzip';
+        $unzip_script = getenv('UNZIP_SCRIPT') ?: 'unzip';
         $download_file_path = stream_get_meta_data($download_fp)['uri'];
 
         $target_dir = Helper::getTmpFile();
@@ -77,7 +77,7 @@ class ApiController extends Pix_Controller
         }
 
         $shp_path = '/tmp/' . $file_id . '/' . $shp_file;
-        $ogr2ogr_script = 'ogr2ogr';
+        $ogr2ogr_script = getenv('OGR2OGR_SCRIPT') ?: 'ogr2ogr';
         $target_file = Helper::getTmpFile();
         $t_srs = 'EPSG:4326';
         $s_srs = '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
