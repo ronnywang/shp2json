@@ -37,7 +37,7 @@ class ApiController extends Pix_Controller
         return $this->json(array(
             'error' => false,
             'file_id' => $tmp_file_name,
-            'getshop_api' => 'http://' . $_SERVER['HTTP_HOST'] . '/api/getshpfromfile?file_id=' . urlencode($tmp_file_name),
+            'getshp_api' => 'http://' . $_SERVER['HTTP_HOST'] . '/api/getshpfromfile?file_id=' . urlencode($tmp_file_name),
         ));
     }
 
