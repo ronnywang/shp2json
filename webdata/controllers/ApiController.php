@@ -80,7 +80,11 @@ class ApiController extends Pix_Controller
         $ogr2ogr_script = getenv('OGR2OGR_SCRIPT') ?: 'ogr2ogr';
         $target_file = Helper::getTmpFile();
         $t_srs = 'EPSG:4326';
-        $s_srs = '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+        if ($_GET['source_srs']) {
+            $s_srs = $_GET['source_srs'];
+        } else {
+            $s_srs = 'EPSG:4326'; 
+        }
         $cmd = "{$ogr2ogr_script} -t_srs " . escapeshellarg($t_srs) . " -s_srs " . escapeshellarg($s_srs) . " -f geojson " . escapeshellarg($target_file) . " " . escapeshellarg($shp_path);
         exec($cmd, $outputs, $ret);
         if ($ret) {
