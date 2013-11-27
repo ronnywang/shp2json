@@ -2,6 +2,28 @@
 
 class ApiController extends Pix_Controller
 {
+    public function fix_filename_recursive($dir_path)
+    {
+        $d = opendir($dir_path);
+        while ($r = readdir($d)) {
+            if ($r == '.' or $r == '..') {
+                continue;
+            }
+            if (iconv('UTF-8', 'UTF-8', $r) == $r) {
+                continue;
+            }
+
+            if (is_dir($dir_path . '/' . $r)) {
+                $this->fix_filename_recursive($dir_path . '/' . $r);
+            }
+
+            if (false !== ($conv_r = iconv('Big5', 'UTF-8', $r))) {
+                rename($dir_path . '/' . $r, $dir_path . '/' . $conv_r);
+                continue;
+            }
+        }
+    }
+
     public function glob_recursive($dir_path)
     {
         $ret = array();
@@ -52,6 +74,7 @@ class ApiController extends Pix_Controller
 
         $target_dir = Helper::getTmpFile();
         $cmd = "{$unzip_script} " . escapeshellarg($download_file_path) . " -d " . escapeshellarg($target_dir);
+
         exec($cmd, $outputs, $ret);
         if ($ret) {
             sleep(30);
@@ -63,6 +86,9 @@ class ApiController extends Pix_Controller
             ));
         }
         fclose($download_fp);
+
+        // check filename charset
+        $this->fix_filename_recursive($target_dir);
 
         if (!$this->glob_recursive($target_dir)) {
             return $this->json(array('error' => true, 'message' => 'no shp file in zip file'));
@@ -89,7 +115,7 @@ class ApiController extends Pix_Controller
         foreach ($this->glob_recursive($target_dir) as $path) {
             $file_name = substr($path, strlen($target_dir) + 1);
             $ret[] = array(
-                'file' => urlencode($file_name),
+                'file' => $file_name,
                 'geojson_api' => 'http://' . $_SERVER['HTTP_HOST'] . '/api/getgeojson?file_id=' . urlencode($file_id) . '&shp_file=' . urlencode($file_name),
             );
         }
