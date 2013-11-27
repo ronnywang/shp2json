@@ -2,11 +2,38 @@
 
 class ApiController extends Pix_Controller
 {
+    public function glob_recursive($dir_path)
+    {
+        $ret = array();
+
+        $d = opendir($dir_path);
+        while ($r = readdir($d)) {
+            if ($r == '.' or $r == '..') {
+                continue;
+            }
+
+            if (is_dir($dir_path . '/' . $r)) {
+                $ret = array_merge($ret, $this->glob_recursive($dir_path . '/' . $r));
+            } elseif (preg_match('#\.shp$#i', $r)) {
+                $ret[] = $dir_path . '/' . $r;
+            }
+        }
+        return $ret;
+    }
+
     public function downloadurlAction()
     {
         $url = $_GET['url'];
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return $this->json(array('error' => true, 'message' => 'not valid json'));
+        }
+        if (file_exists("/tmp/shp2json-filecache-" . crc32($url)) {
+            $tmp_file_name = file_get_contents("/tmp/shp2json-filecache-" . crc32($url));
+            return $this->json(array(
+                'error' => false,
+                'file_id' => $tmp_file_name,
+                'getshp_api' => 'http://' . $_SERVER['HTTP_HOST'] . '/api/getshpfromfile?file_id=' . urlencode($tmp_file_name),
+            ));
         }
 
         $curl = curl_init($url);
@@ -25,15 +52,22 @@ class ApiController extends Pix_Controller
         $cmd = "{$unzip_script} " . escapeshellarg($download_file_path) . " -d " . escapeshellarg($target_dir);
         exec($cmd, $outputs, $ret);
         if ($ret) {
-            return $this->json(array('error' => true, 'message' => 'not valid zip file', 'outputs' => $outputs));
+            sleep(30);
+            return $this->json(array(
+                'error' => true,
+                'message' => 'not valid zip file',
+                'outputs' => $outputs,
+                'code' => $ret,
+            ));
         }
         fclose($download_fp);
 
-        if (!glob($target_dir . '/*.[sS][Hh][Pp]')) {
+        if (!$this->glob_recursive($target_dir)) {
             return $this->json(array('error' => true, 'message' => 'no shp file in zip file'));
         }
         $tmp_file_name = 'shp2json-' . date('Y-m-d-H-i-s') . '-' . uniqid(microtime(true));
         rename($target_dir, '/tmp/' . $tmp_file_name);
+        file_put_contents("/tmp/shp2json-filecache-" . crc32($url), $tmp_file_name);
         return $this->json(array(
             'error' => false,
             'file_id' => $tmp_file_name,
@@ -50,10 +84,10 @@ class ApiController extends Pix_Controller
 
         $target_dir = '/tmp/' . $file_id;
         $ret = array();
-        foreach (glob($target_dir . '/*.[sS][Hh][Pp]') as $path) {
+        foreach ($this->glob_recursive($target_dir) as $path) {
             $file_name = substr($path, strlen($target_dir) + 1);
             $ret[] = array(
-                'file' => $file_name,
+                'file' => urlencode($file_name),
                 'geojson_api' => 'http://' . $_SERVER['HTTP_HOST'] . '/api/getgeojson?file_id=' . urlencode($file_id) . '&shp_file=' . urlencode($file_name),
             );
         }
