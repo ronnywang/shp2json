@@ -9,6 +9,10 @@
     </li>
     <li>
     Use <code>http://<?= $_SERVER['HTTP_HOST'] ?>/api/getgeojson?file_id={file_id}&shp_file={shp_file}</code> to get GeoJSON
+    <ul>
+        <li>You can add source_srs paramter: <?= implode(', ', array_keys(Helper::getSrs())) ?></li>
+        <li>Or you can use proj.4 string format, Ex: <code>+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</code></li>
+    </ul>
     </li>
 </ol>
 <h3>Try it?</h3>

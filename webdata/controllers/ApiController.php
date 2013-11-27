@@ -80,8 +80,13 @@ class ApiController extends Pix_Controller
         $ogr2ogr_script = getenv('OGR2OGR_SCRIPT') ?: 'ogr2ogr';
         $target_file = Helper::getTmpFile();
         $t_srs = 'EPSG:4326';
+        $srs = Helper::getSrs();
         if ($_GET['source_srs']) {
-            $s_srs = $_GET['source_srs'];
+            if (array_key_exists($_GET['source_srs'], $srs)) {
+                $s_srs = $srs[$_GET['source_srs']]['config'];
+            } else {
+                $s_srs = $_GET['source_srs'];
+            }
         } else {
             $s_srs = 'EPSG:4326'; 
         }

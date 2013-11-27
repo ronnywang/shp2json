@@ -38,4 +38,18 @@ class Helper
             unlink($file);
         }
     }
+
+    public static function getSrs()
+    {
+        return array(
+            'twd97' => array(
+                'name' => 'TWD97',
+                'config' => '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+            ),
+            'twd97/119' => array(
+                'name' => 'TWD97 / TM2 zone 119(PengHu, Kinmen, Matsu)',
+                'config' => '+proj=tmerc +lat_0=0 +lon_0=119 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+            ),
+        );
+    }
 }
