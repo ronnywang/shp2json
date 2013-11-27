@@ -1,0 +1,19 @@
+<?= $this->partial('/common/header.phtml', $this) ?>
+<h1>Online SHPFile to GeoJSON</h1>
+<ol>
+    <li>
+    Use <code>http://<?= $_SERVER['HTTP_HOST'] ?>/api/downloadurl?url={shp zip file url}</code> to get file_id
+    </li>
+    <li>
+    Use <code>http://<?= $_SERVER['HTTP_HOST'] ?>/api/getshpfromfile?file_id={file_id}</code> to get shpfile list in zip file
+    </li>
+    <li>
+    Use <code>http://<?= $_SERVER['HTTP_HOST'] ?>/api/getgeojson?file_id={file_id}&shp_file={shp_file}</code> to get GeoJSON
+    </li>
+</ol>
+<h3>Try it?</h3>
+<form method="GET" action="/api/downloadurl">
+    <input type="text" name="url" placeholder="http://">
+    <button type="submit">download</button>
+</form>
+<?= $this->partial('/common/footer.phtml', $this) ?>
