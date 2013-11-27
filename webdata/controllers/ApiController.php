@@ -16,6 +16,8 @@ class ApiController extends Pix_Controller
                 $ret = array_merge($ret, $this->glob_recursive($dir_path . '/' . $r));
             } elseif (preg_match('#\.shp$#i', $r)) {
                 $ret[] = $dir_path . '/' . $r;
+            } elseif (preg_match('#\.dgn$#i', $r)) {
+                $ret[] = $dir_path . '/' . $r;
             }
         }
         return $ret;
@@ -27,7 +29,7 @@ class ApiController extends Pix_Controller
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return $this->json(array('error' => true, 'message' => 'not valid json'));
         }
-        if (file_exists("/tmp/shp2json-filecache-" . crc32($url)) {
+        if (file_exists("/tmp/shp2json-filecache-" . crc32($url))) {
             $tmp_file_name = file_get_contents("/tmp/shp2json-filecache-" . crc32($url));
             return $this->json(array(
                 'error' => false,
